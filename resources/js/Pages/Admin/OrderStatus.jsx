@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Inertia } from '@inertiajs/inertia';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { LoggedInNavbar } from '@/Components/LoggedInNavbar';
+import "@fontsource/noto-sans-thai";
+import { Footer } from '@/Components/Footer';
 
 export default function Status({ orders, statusUpdateSuccess }) {
     const [orderStatuses, setOrderStatuses] = useState({});
@@ -43,9 +45,11 @@ export default function Status({ orders, statusUpdateSuccess }) {
     };
 
     return (
-        <AuthenticatedLayout>
+            <div className='container mx-auto p-8'>
+                <LoggedInNavbar></LoggedInNavbar>
             <div className="max-w-7xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
-                <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">สถานะการสั่งซื้อทั้งหมด</h1>
+                
+                <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6 ">สถานะการสั่งซื้อทั้งหมด</h1>
 
                 {/* แสดงข้อความสำเร็จถ้ามีการอัปเดตสถานะ */}
                 {statusUpdateSuccess && (
@@ -94,6 +98,10 @@ export default function Status({ orders, statusUpdateSuccess }) {
                     </a>
                 </div>
             </div>
-        </AuthenticatedLayout>
+            <div className='mt-10'>
+<Footer></Footer>
+</div>
+
+            </div>
     );
 }

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Carousel, Typography } from "@material-tailwind/react";
 import { Link } from "@inertiajs/inertia-react";
 import { GuestNavbar } from "@/Components/GuestNavbar";
+import { Footer } from "@/Components/Footer";
 import "@fontsource/noto-sans-thai";
 
 import AOS from "aos";
@@ -19,8 +20,9 @@ export default function Welcome({ foods }) {
 
     return (
         
-        <div className="container mx-auto p-8 mt-12">
+        <div className="container mx-auto p-8 ">
             <GuestNavbar />
+            <br></br>
             {/* Carousel Section */}
             <Carousel className="rounded-xl mb-10">
                 {foods.slice(0, 5).map((food) => (
@@ -85,7 +87,10 @@ export default function Welcome({ foods }) {
                 </div>
                 
             </div>
-            
+            <div className="mt-10">
+
+            <Footer />
+            </div>
         </div>
         
     );

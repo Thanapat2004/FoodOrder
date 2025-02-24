@@ -1,5 +1,6 @@
 import React from 'react';
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { LoggedInNavbar } from '@/Components/LoggedInNavbar';
+import { Footer } from '@/Components/Footer';
 import { useForm } from '@inertiajs/react';
 import '@fontsource/noto-sans-thai';
 
@@ -27,9 +28,12 @@ export default function Create({ categories }) {
     };
 
     return (
-        <AuthenticatedLayout>
+
+        <div className='container mx-auto p-8'>
+            <LoggedInNavbar />
             <div className="max-w-7xl mx-auto p-8 bg-white rounded-lg shadow-lg mt-10">
-                <h1 className="text-4xl font-semibold text-center text-gray-900 mb-8 ">เพิ่มเมนูอาหารใหม่</h1>
+               
+                <h1 className="text-4xl font-semibold text-center text-gray-900 mb-8 mt-10">เพิ่มเมนูอาหารใหม่</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -74,6 +78,9 @@ export default function Create({ categories }) {
                     </div>
                 </form>
             </div>
-        </AuthenticatedLayout>
+            <br />
+            <Footer />
+        </div>
+       
     );
 }

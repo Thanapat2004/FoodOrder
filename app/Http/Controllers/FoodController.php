@@ -103,25 +103,25 @@ class FoodController extends Controller
 
     // แสดงรายละเอียดคำสั่งซื้อ
     public function orderStatus(Order $order)
-    {
+{
     // ตรวจสอบว่า user ที่ล็อกอินเป็น admin หรือไม่
     if (auth()->user()->role === 'admin') {
-        // ถ้าเป็น admin, ดึงคำสั่งซื้อทั้งหมด
-        $orders = Order::with(['orderItems.food', 'payment', 'user'])
+        // ดึงคำสั่งซื้อทั้งหมดพร้อมข้อมูลอาหารและรูปภาพ
+        $orders = Order::with(['orderItems.food:id,name,price,image', 'payment', 'user'])
             ->get();
     } else {
-        // ถ้าเป็นผู้ใช้ทั่วไป, ดึงเฉพาะคำสั่งซื้อของผู้ใช้ที่ล็อกอิน
-        $orders = Order::with(['orderItems.food', 'payment', 'user'])
+        // ดึงเฉพาะคำสั่งซื้อของผู้ใช้ที่ล็อกอินพร้อมข้อมูลอาหารและรูปภาพ
+        $orders = Order::with(['orderItems.food:id,name,price,image', 'payment', 'user'])
             ->where('user_id', auth()->id())
             ->get();
     }
 
     // ส่งข้อมูลคำสั่งซื้อทั้งหมดไปยัง frontend
     return Inertia::render('Food/Status', [
-        'orders' => $orders // ส่งคำสั่งซื้อทั้งหมด
+        'orders' => $orders
     ]);
+}
 
-    }
     // แสดงรายละเอียดอาหาร
     public function show(Food $food)
 {
