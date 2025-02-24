@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '@inertiajs/inertia-react';
 import '@fontsource/noto-sans-thai';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { LoggedInNavbar } from "@/Components/LoggedInNavbar";
 
 export default function OrderStatus({ orders }) {
   const [orderStatus, setOrderStatus] = useState('กำลังโหลดข้อมูล...');
@@ -15,8 +15,11 @@ export default function OrderStatus({ orders }) {
   }, [orders]);
 
   return (
-    <AuthenticatedLayout>
+   
       <div style={{ fontFamily: 'Noto Sans Thai, sans-serif' }} className="container mx-auto p-8">
+         <div >
+    <LoggedInNavbar/>
+    </div>
         <h1 className="text-3xl font-bold mb-4">สถานะการสั่งซื้อ</h1>
         
         <div className="mb-8">
@@ -64,6 +67,6 @@ export default function OrderStatus({ orders }) {
           กลับไปยังเมนูอาหาร
         </Link>
       </div>
-    </AuthenticatedLayout>
+  
   );
 }

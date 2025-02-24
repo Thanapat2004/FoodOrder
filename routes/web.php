@@ -22,6 +22,8 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/welcome', [FoodController::class, 'welcome'])->name('wellcome');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -35,12 +37,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders', [FoodController::class, 'storeOrder'])->name('orders.store');
     Route::get('/status', [FoodController::class, 'orderStatus'])->name('order.status');
     Route::get('/status{order}', [FoodController::class, 'orderStatus'])->name('order.status');
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     
 });
 Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/admin/foods', [FoodController::class, 'adminIndex'])->name('admin.foods.index');
     Route::put('/foods/{food}', [FoodController::class, 'update'])->name('foods.update');
     Route::get('/foods/{food}', [FoodController::class, 'show'])->name('foods.show');
+    Route::get('/admin/foods/Create', [FoodController::class, 'adminCreate'])->name('admin.foods.create');
+    Route::post('/admin/foods', [FoodController::class, 'store'])->name('admin.foods.store'); 
     Route::get('/admin/foods/{food}/edit', [FoodController::class, 'edit'])->name('admin.foods.edit');
     Route::put('/admin/foods/{food}', [FoodController::class, 'update'])->name('admin.foods.update');
     Route::get('/admin/OrderStatus', [FoodController::class, 'adminOrderStatus'])->name('admin.orders.index');

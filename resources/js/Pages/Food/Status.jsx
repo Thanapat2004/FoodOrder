@@ -1,12 +1,16 @@
 import React from 'react';
 import '@fontsource/noto-sans-thai';
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { LoggedInNavbar } from '@/Components/LoggedInNavbar';
 
 export default function Status({ orders }) {
     return (
-        <AuthenticatedLayout>
-            <div className="max-w-7xl mx-auto p-8 bg-white rounded-lg shadow-lg mt-10">
+        
+            <div className="max-w-7xl mx-auto p-8 bg-white rounded-lg shadow-lg ">
+                <div className="mb-8">
+                    <LoggedInNavbar />
+                </div>
                 <h1 className="text-4xl font-semibold text-center text-gray-900 mb-8">สถานะการสั่งซื้อทั้งหมด</h1>
+                
 
                 {/* ถ้าไม่มีคำสั่งซื้อ */}
                 {orders.length === 0 ? (
@@ -43,6 +47,6 @@ export default function Status({ orders }) {
                     </div>
                 )}
             </div>
-        </AuthenticatedLayout>
+     
     );
 }

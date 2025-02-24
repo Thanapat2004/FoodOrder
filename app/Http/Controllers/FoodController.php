@@ -13,11 +13,29 @@ use Illuminate\Http\Request;
 
 class FoodController extends Controller
 {
+
+    // หน้า wellcome
+    public function welcome()
+    {
+        $foods = Food::with('category')->get()->map(function ($food) {
+            $food->image_url = $food->image ? asset('storage/' . $food->image) : null;
+            return $food;
+        });
+        return Inertia::render('Food/welcome', ['foods' => $foods]);
+    }
+
+
+
+
     // แสดงเมนูอาหารทั้งหมดสำหรับผู้ใช้ทั่วไป
     public function index()
     {
 
-        $foods = Food::with('category')->get();
+        $foods = Food::with('category')->get()->map(function ($food) {
+            $food->image_url = $food->image ? asset('storage/' . $food->image) : null;
+            return $food;
+        });
+    
         return Inertia::render('Food/Index', ['foods' => $foods]);
     }
 
@@ -106,11 +124,13 @@ class FoodController extends Controller
     }
     // แสดงรายละเอียดอาหาร
     public function show(Food $food)
-    {
-        return Inertia::render('Food/Show', [
-            'food' => $food->load('category')
-        ]);
-    }
+{
+    return inertia('Food/Show', [
+        'food' => $food->load('category'),
+        'user' => auth()->user() // ส่งข้อมูลผู้ใช้ไปด้วย
+    ]);
+}
+
 
 
     // Admin - บันทึกข้อมูลอาหารใหม่
@@ -125,7 +145,7 @@ class FoodController extends Controller
         ]);
 
         $food = Food::create($request->all());
-        return redirect('/Admin/Index')->with('success', 'เพิ่มสินค้าเรียบร้อยแล้ว');
+        return redirect()->route('admin.foods.index')->with('success', 'เพิ่มสินค้าเรียบร้อยแล้ว');
     }
 
     // Admin - อัปเดตสถานะคำสั่งซื้อ
@@ -165,11 +185,21 @@ public function adminOrderStatus()
     ]);
 }
      // Admin - แสดงหน้าแก้ไขข้อมูลอาหาร
-    public function adminIndex()
-    {
-        $foods = Food::with('category')->get();
-        return Inertia::render('Admin/Index', ['foods' => $foods]);
-    }
+     public function adminIndex()
+{
+    $foods = Food::with('category')->get()->map(function ($food) {
+        $food->image_url = $food->image ? asset('storage/' . $food->image) : null;
+        return $food;
+    });
+
+    $categories = Category::all(); // ตรวจสอบว่ามีการดึง categories หรือไม่
+
+    return inertia('Admin/Index', [
+        'foods' => $foods ?? [],           // ป้องกันกรณี undefined
+        'categories' => $categories ?? []  // ป้องกันกรณี undefined
+    ]);
+}
+
     // Admin - แก้ไขข้อมูลอาหาร
     public function edit(Food $food)
     {
@@ -177,23 +207,47 @@ public function adminOrderStatus()
         return Inertia::render('Admin/Edit', ['food' => $food, 'categories' => $categories]);
     }
 
-    // Admin - อัปเดตข้อมูลอาหาร
+    public function adminCreate()
+{
+    $categories = Category::all();
+    return Inertia::render('Admin/Create', [
+        'categories' => $categories
+    ]);
+}
+
+
     public function update(Request $request, Food $food)
     {
-
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        $food->update($request->all());
-        return redirect()->route('admin.foods.index')->with('success', 'แก้ไขข้อมูลเรียบร้อยแล้ว');
+    
+        // อัปเดตรูปภาพถ้ามีการอัปโหลดใหม่
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public'); // เก็บใน storage/app/public/images
+            $validated['image'] = $path;
+        }
+    
+        $food->update($validated);
+    
+        return redirect()->route('admin.foods.index')->with('success', 'อัปเดตเมนูอาหารสำเร็จ');
     }
+    
     // Admin - ลบข้อมูลอาหาร
     public function destroy(Food $food)
     {
         $food->delete();
         return redirect()->back()->with('success', 'ลบสินค้าเรียบร้อยแล้ว');
+    }
+
+
+    public function logout()
+    {
+        Auth::logout(); // ทำการออกจากระบบ
+        return redirect('/'); // หรือ redirect ไปที่หน้าอื่น ๆ ที่ต้องการ
     }
 }

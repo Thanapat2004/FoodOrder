@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import {
+    Card,
+    CardHeader,
+    CardBody,
+    CardFooter,
+    Typography,
+    Button,
+    Carousel,
+} from "@material-tailwind/react";
+
+import React, { useState, useEffect } from "react";
 import { Link } from "@inertiajs/inertia-react";
 import "@fontsource/noto-sans-thai";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { LoggedInNavbar } from "@/Components/LoggedInNavbar";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 export default function Index({ foods }) {
+    const [search, setSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
+
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const orderStatus = cart.length > 0 
         ? 'คำสั่งซื้อของคุณยังไม่ได้สั่งซื้อ'
-        : 'ไม่มีคำสั่งซื้อ'; // คำนวณสถานะจากจำนวนสินค้าในตะกร้า
+        : 'ไม่มีคำสั่งซื้อ';
 
     const handleAddToCart = (food) => {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -23,54 +38,182 @@ export default function Index({ foods }) {
         alert(`${food.name} ถูกเพิ่มในตะกร้าแล้ว!`);
     };
 
-    const handleOrder = () => {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        if (cart.length > 0) {
-            alert('สั่งซื้อเรียบร้อย!');
-            localStorage.removeItem('cart');
-        } else {
-            alert('กรุณาเพิ่มสินค้าในตะกร้าก่อนทำการสั่งซื้อ');
-        }
-    };
+    useEffect(() => {
+        AOS.init({ duration: 1000 }); // กำหนดเวลาในการเคลื่อนไหว
+    }, []);
+
+    const topSellingFoods = [...foods]
+        .sort((a, b) => b.sales_count - a.sales_count)
+        .slice(0, 4);
+
+    const allCategories = [
+        "ทั้งหมด",
+        ...Array.from(new Set(foods.map(food => food.category?.name || "อื่น ๆ")))
+    ];
+
+    const filteredFoods = foods.filter(food => 
+        food.name.toLowerCase().includes(search.toLowerCase()) &&
+        (selectedCategory === "ทั้งหมด" || food.category?.name === selectedCategory)
+    );
+
+    const categorizedFoods = filteredFoods.reduce((acc, food) => {
+        const category = food.category?.name || "อื่น ๆ";
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(food);
+        return acc;
+    }, {});
 
     return (
-        <AuthenticatedLayout>
-            <div style={{ fontFamily: "Noto Sans Thai, sans-serif" }} className="container mx-auto p-8">
-                <div className="flex justify-between items-center mb-10">
-                    <h1 className="text-3xl font-bold">Food Menu</h1>
-                    <hr className="border-t border-gray-300 mt-4 mb-4" />
-                    <div className="flex gap-4">
-                        <Link href="/Food/Addtocart" className="text-white bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600">
-                            ไปที่ตะกร้าสินค้า
-                        </Link>
-                        {/* เปลี่ยนปุ่มสถานะการสั่งซื้อให้ไปหน้า OrderStatus */}
-                        <Link 
-                            href="/status"  // เปลี่ยนเป็น route ของหน้าสถานะการสั่งซื้อ
-                            className="text-white bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600">
-                            {orderStatus}
-                        </Link>
-                    </div>
-                </div>
-
+        <div style={{ fontFamily: "Noto Sans Thai, sans-serif" }} className="container mx-auto p-8 ">
+        <LoggedInNavbar />
+         <Carousel className="rounded-xl mb-10">
+                        {foods.slice(0, 5).map((food) => (
+                            <div key={food.id} className="relative h-96">
+                                <img
+                                    src={food.image_url}
+                                    alt={food.name}
+                                    className="w-full h-full object-cover rounded-xl transition-transform duration-500 transform hover:scale-105"
+                                />
+                                <div className="absolute bottom-0 w-full bg-black bg-opacity-50 text-white p-4 rounded-b-xl">
+                                    <Typography variant="h4" className="font-bold">
+                                        {food.name}
+                                    </Typography>
+                                </div>
+                            </div>
+                        ))}
+                    </Carousel>
+        <div className="flex justify-between items-center mb-10">
+            <h1 className="text-2xl font-bold mb-auto mt-[-10px]">เมนูอาหาร</h1>
+            <div className="flex gap-4">
+                <Link
+                    href="/Food/Addtocart"
+                    className="text-white bg-green-500 px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transform transition-all hover:scale-105"
+                >
+                    ไปที่ตะกร้าสินค้า
+                </Link>
+                <Link
+                    href="/status"
+                    className="text-white bg-red-500 px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transform transition-all hover:scale-105"
+                >
+                    {orderStatus}
+                </Link>
+            </div>
+        </div>
+    
+        <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 border-b border-gray-300 pb-2">สินค้าขายดี 4 อันดับ</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {topSellingFoods.map((food, index) => (
+                    <Card key={food.id} className="shadow-lg hover:shadow-xl transition-shadow bg-white">
+                        <CardHeader floated={false} className="relative h-40">
+                            {food.image_url && (
+                                <img
+                                    src={food.image_url}
+                                    alt={food.name}
+                                    className="w-full h-full object-cover rounded-t-lg"
+                                />
+                            )}
+                        </CardHeader>
+                        <CardBody>
+                            <div className="flex justify-between items-center mb-2">
+                                <Typography variant="h5" className="font-bold">
+                                    {index + 1}
+                                </Typography>
+                                <Typography variant="small" className="bg-red-500 text-white px-2 py-1 rounded-lg">
+                                    ขายดี!
+                                </Typography>
+                            </div>
+                            <Typography variant="h6" className="mb-2">
+                                {food.name}
+                            </Typography>
+                            <Typography className="text-gray-600 mb-2">
+                                {food.description}
+                            </Typography>
+                            <Typography className="text-green-500 font-bold mb-4">
+                                THB: {food.price} ฿
+                            </Typography>
+                        </CardBody>
+                        <CardFooter className="flex justify-between items-center">
+                            <Link href={`/food/${food.id}`} className="text-blue-500 hover:underline">
+                                ดูรายละเอียด
+                            </Link>
+                            <Button
+                                color="blue"
+                                onClick={() => handleAddToCart(food)}
+                                className="transform transition-all hover:scale-105"
+                            >
+                                เพิ่มลงในตะกร้า
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    
+        <div className="flex gap-4 mb-6">
+            <input
+                type="text"
+                placeholder="ค้นหาชื่ออาหาร..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-1/3 p-3 border border-gray-300 rounded-lg bg-white cursor-pointer"
+            >
+                {allCategories.map(category => (
+                    <option key={category} value={category}>
+                        {category}
+                    </option>
+                ))}
+            </select>
+        </div>
+    
+        {Object.entries(categorizedFoods).map(([category, foods]) => (
+            <div key={category} className="mb-10">
+                <h2 className="text-2xl font-semibold mb-4 border-b border-gray-300 pb-2">{category}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {foods.map((food) => (
-                        <div key={food.id} className="border rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                            <h2 className="text-xl font-semibold mb-2">{food.name}</h2>
-                            <p className="text-gray-600 mb-2">{food.description}</p>
-                            <p className="text-gray-600 mb-2">หมวดหมู่: {food.category.name}</p>
-                            <p className="text-green-500 font-bold mb-4">THB: {food.price} ฿</p>
-                            <div className="flex justify-between items-center">
-                                <Link href={`/food/${food.id}`} className="text-blue-500 hover:underline">ดูรายละเอียด</Link>
-                                <button
+                        <Card key={food.id} className="shadow-lg hover:shadow-xl transition-shadow bg-white">
+                            <CardHeader floated={false} className="relative h-40">
+                                {food.image_url && (
+                                    <img
+                                        src={food.image_url}
+                                        alt={food.name}
+                                        className="w-full h-full object-cover rounded-t-lg"
+                                    />
+                                )}
+                            </CardHeader>
+                            <CardBody>
+                                <Typography variant="h6" className="mb-2">
+                                    {food.name}
+                                </Typography>
+                                <Typography className="text-gray-600 mb-2">
+                                    {food.description}
+                                </Typography>
+                                <Typography className="text-green-500 font-bold mb-4">
+                                    THB: {food.price} ฿
+                                </Typography>
+                            </CardBody>
+                            <CardFooter className="flex justify-between items-center">
+                                <Link href={`/food/${food.id}`} className="text-blue-500 hover:underline">
+                                    ดูรายละเอียด
+                                </Link>
+                                <Button
+                                    color="blue"
                                     onClick={() => handleAddToCart(food)}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                                    className="transform transition-all hover:scale-105"
+                                >
                                     เพิ่มลงในตะกร้า
-                                </button>
-                            </div>
-                        </div>
+                                </Button>
+                            </CardFooter>
+                        </Card>
                     ))}
                 </div>
             </div>
-        </AuthenticatedLayout>
-    );
+        ))}
+    </div>
+        );
 }

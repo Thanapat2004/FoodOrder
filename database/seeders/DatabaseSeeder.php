@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\Food;
+use Faker\Factory as Faker;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -21,8 +22,14 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        Category::factory(5)->create()->each(function ($category) {
-            Food::factory(10)->create(['category_id' => $category->id]);
+        // Category::factory(5)->create()->each(function ($category) {
+        //     Food::factory(10)->create(['category_id' => $category->id]);
+        // });
+        Food::all()->each(function ($food) {
+            static $faker = null;
+            $faker = $faker ?? Faker::create(); // ใช้ static เพื่อให้สร้าง Faker แค่ครั้งเดียว
+            $food->update(['sales_count' => $faker->numberBetween(1, 100)]);
         });
+        
     }
 }
