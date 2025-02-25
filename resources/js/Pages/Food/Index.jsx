@@ -126,21 +126,21 @@ export default function Index({ foods }) {
                             </CardHeader>
                             <CardBody>
                                 <div className="flex justify-between items-center mb-2">
-                                    <Typography variant="h5" className="font-bold">
-                                        {index + 1}
+                                    <Typography variant="h6" className="font-bold">
+                                        {index + 1}. {food.name}
                                     </Typography>
                                     <Typography variant="small" className="bg-red-500 text-white px-2 py-1 rounded-lg">
                                         ขายดี!
                                     </Typography>
                                 </div>
-                                <Typography variant="h6" className="mb-2">
-                                    {food.name}
-                                </Typography>
                                 <Typography className="text-gray-600 mb-2">
                                     {food.description}
                                 </Typography>
                                 <Typography className="text-green-500 font-bold mb-4">
                                     THB: {food.price} ฿
+                                </Typography>
+                                <Typography className="text-gray-400 text-sm font-bold mb-6">
+                                    สั่งซื้อแล้ว {food.sales_count}  ครั้ง
                                 </Typography>
                             </CardBody>
                             <CardFooter className="flex justify-between items-center">
@@ -210,6 +210,9 @@ export default function Index({ foods }) {
                                     <Typography className="text-green-500 font-bold mb-4">
                                         THB: {food.price} ฿
                                     </Typography>
+                                    <Typography className="text-gray-400 text-sm font-bold mb-2">
+                                    สั่งซื้อแล้ว {food.sales_count}  ครั้ง
+                                </Typography>
                                 </CardBody>
                                 <CardFooter className="flex justify-between items-center">
                                     <Link href={`/food/${food.id}`} className="text-blue-500 hover:underline">

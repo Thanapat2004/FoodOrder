@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         Food::all()->each(function ($food) {
             static $faker = null;
             $faker = $faker ?? Faker::create(); // ใช้ static เพื่อให้สร้าง Faker แค่ครั้งเดียว
-            $food->update(['sales_count' => $faker->numberBetween(1, 100)]);
+            $food->update(['sales_count' => $faker->numberBetween(1, 600)]);
         });
         
     }
