@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         // Category::factory(5)->create()->each(function ($category) {
         //     Food::factory(10)->create(['category_id' => $category->id]);
         // });
+        // Seed admin user and test users
+        $this->call(AdminUserSeeder::class);
+        
         Food::all()->each(function ($food) {
             static $faker = null;
             $faker = $faker ?? Faker::create(); // ใช้ static เพื่อให้สร้าง Faker แค่ครั้งเดียว

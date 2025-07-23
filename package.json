@@ -23,10 +23,12 @@
     "dependencies": {
         "@fontsource/noto-sans": "^5.1.1",
         "@fontsource/noto-sans-thai": "^5.1.1",
+        "@heroicons/react": "^2.2.0",
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/inertia-react": "^0.8.1",
         "@material-tailwind/react": "^2.1.10",
         "aos": "^2.3.4",
+        "framer-motion": "^12.23.6",
         "react-router-dom": "^7.2.0",
         "react-slick": "^0.30.3",
         "slick-carousel": "^1.8.1",

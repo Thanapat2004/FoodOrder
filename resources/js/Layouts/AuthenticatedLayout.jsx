@@ -25,7 +25,34 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <NavLink
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
-                                />
+                                >
+                                    Dashboard
+                                </NavLink>
+                                
+                                {user.role === 'admin' && (
+                                    <>
+                                        <NavLink
+                                            href={route('admin.foods.index')}
+                                            active={route().current('admin.foods.*')}
+                                        >
+                                            Foods
+                                        </NavLink>
+                                        
+                                        <NavLink
+                                            href={route('admin.orders.index')}
+                                            active={route().current('admin.orders.*')}
+                                        >
+                                            Orders
+                                        </NavLink>
+                                        
+                                        <NavLink
+                                            href={route('admin.users.index')}
+                                            active={route().current('admin.users.*')}
+                                        >
+                                            Users
+                                        </NavLink>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -100,11 +127,27 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </div>
 
-                <div className={showingNavigationDropdown ? 'block' : 'hidden'} sm:hidden>
+                <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} sm:hidden`}>
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        
+                        {user.role === 'admin' && (
+                            <>
+                                <ResponsiveNavLink href={route('admin.foods.index')} active={route().current('admin.foods.*')}>
+                                    Foods Management
+                                </ResponsiveNavLink>
+                                
+                                <ResponsiveNavLink href={route('admin.orders.index')} active={route().current('admin.orders.*')}>
+                                    Orders Management
+                                </ResponsiveNavLink>
+                                
+                                <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.*')}>
+                                    User Management
+                                </ResponsiveNavLink>
+                            </>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

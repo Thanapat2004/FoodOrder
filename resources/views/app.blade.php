@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        
+        @auth
+        <meta name="user-id" content="{{ auth()->user()->id }}">
+        @endauth
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

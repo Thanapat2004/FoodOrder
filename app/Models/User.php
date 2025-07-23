@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * ตรวจสอบว่า User เป็น Admin หรือไม่
      */
@@ -60,10 +65,18 @@ class User extends Authenticatable
     }
 
     /**
-     * ตรวจสอบว่า User เป็น User ธรรมดาหรือไม่
+     * ตรวจสอบว่า User เป็น Customer ธรรมดาหรือไม่
+     */
+    public function isCustomer()
+    {
+        return $this->role === 'customer';
+    }
+
+    /**
+     * ตรวจสอบว่า User เป็น User ธรรมดาหรือไม่ (เพื่อ backward compatibility)
      */
     public function isUser()
     {
-        return $this->role === 'user';
+        return $this->role === 'customer' || $this->role === 'user';
     }
 }

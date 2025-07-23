@@ -125,9 +125,49 @@ class FoodController extends Controller
     // แสดงรายละเอียดอาหาร
     public function show(Food $food)
 {
+    // ดึงรีวิวล่าสุด 5 รายการ
+    $recentReviews = $food->reviews()
+        ->with('user')
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // คำนวณคะแนนเฉลี่ย
+    $averageRating = $food->reviews()->avg('rating');
+    $totalReviews = $food->reviews()->count();
+    
+    // คำนวณจำนวนดาวแต่ละระดับ
+    $ratingCounts = [];
+    for ($i = 1; $i <= 5; $i++) {
+        $ratingCounts[$i] = $food->reviews()->where('rating', $i)->count();
+    }
+    
+    // ตรวจสอบว่าผู้ใช้เคยซื้อสินค้านี้และสามารถรีวิวได้หรือไม่
+    $canReview = false;
+    $reviewableOrderItems = [];
+    
+    if (auth()->check()) {
+        $reviewableOrderItems = \App\Models\OrderItem::with(['order'])
+            ->whereHas('order', function($query) {
+                $query->where('user_id', auth()->id())
+                      ->where('status', 'delivered');
+            })
+            ->where('food_id', $food->id)
+            ->whereDoesntHave('review')
+            ->get();
+        
+        $canReview = $reviewableOrderItems->count() > 0;
+    }
+
     return inertia('Food/Show', [
         'food' => $food->load('category'),
-        'user' => auth()->user() // ส่งข้อมูลผู้ใช้ไปด้วย
+        'user' => auth()->user(),
+        'recentReviews' => $recentReviews,
+        'averageRating' => round($averageRating ?? 0, 1),
+        'totalReviews' => $totalReviews,
+        'ratingCounts' => $ratingCounts,
+        'canReview' => $canReview,
+        'reviewableOrderItems' => $reviewableOrderItems
     ]);
 }
 
@@ -136,7 +176,7 @@ class FoodController extends Controller
     // Admin - บันทึกข้อมูลอาหารใหม่
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -144,7 +184,13 @@ class FoodController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $food = Food::create($request->all());
+        // จัดการการอัพโหลดรูปภาพ
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public'); // เก็บใน storage/app/public/images
+            $validated['image'] = $path;
+        }
+
+        $food = Food::create($validated);
         return redirect()->route('admin.foods.index')->with('success', 'เพิ่มสินค้าเรียบร้อยแล้ว');
     }
 
@@ -193,10 +239,14 @@ public function adminOrderStatus()
     });
 
     $categories = Category::all(); // ตรวจสอบว่ามีการดึง categories หรือไม่
+    $users = \App\Models\User::all(); // ดึงข้อมูลผู้ใช้ทั้งหมด
+    $orders = \App\Models\Order::all(); // ดึงข้อมูลคำสั่งซื้อทั้งหมด
 
     return inertia('Admin/Index', [
         'foods' => $foods ?? [],           // ป้องกันกรณี undefined
-        'categories' => $categories ?? []  // ป้องกันกรณี undefined
+        'categories' => $categories ?? [], // ป้องกันกรณี undefined
+        'users' => $users ?? [],           // ส่งข้อมูลผู้ใช้
+        'orders' => $orders ?? []          // ส่งข้อมูลคำสั่งซื้อ
     ]);
 }
 

@@ -10,4 +10,12 @@ export default defineConfig({
         }),
         react(),
     ],
+    server: {
+        hmr: {
+            overlay: false,
+        },
+        watch: {
+            usePolling: true,
+        }
+    },
 });

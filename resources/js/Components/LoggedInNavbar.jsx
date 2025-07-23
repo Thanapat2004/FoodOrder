@@ -1,28 +1,62 @@
+import React, { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia';
+import { usePage } from '@inertiajs/inertia-react';
 import { Button, Typography, IconButton, Navbar, Collapse } from '@material-tailwind/react';
 
-export function LoggedInNavbar({ openNav, setOpenNav }) {
+export function LoggedInNavbar() {
+  const [openNav, setOpenNav] = useState(false);
+  
+  // Add safeguard for usePage hook
+  let auth = null;
+  try {
+    auth = usePage()?.props?.auth;
+  } catch {
+    auth = null;
+  }
+  
+  // Only proceed if auth is available
+  const user = auth?.user;
+  const isAdmin = user?.role === 'admin';
     
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
-        <a href="/foods" className="flex items-center">
+        <a href="/foods" className="flex items-center hover:text-blue-500 transition-colors">
           เมนูอาหาร
         </a>
       </Typography>
       <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
-        <a href="/status" className="flex items-center">
+        <a href="/status" className="flex items-center hover:text-blue-500 transition-colors">
             สถานะการสั่งซื้อ
         </a>
       </Typography>
       <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
-        <a href="/Food/Addtocart" className="flex items-center">
+        <a href="/Food/Addtocart" className="flex items-center hover:text-blue-500 transition-colors">
             ตะกร้าสินค้า
         </a>
       </Typography>
       <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
-        <form onSubmit={(e) => { e.preventDefault(); Inertia.post('/logout'); }}>
-          <Button type="submit" color="black" className="flex items-center text-white">
+        <a href="/reviews/reviewable" className="flex items-center hover:text-blue-500 transition-colors">
+            เขียนรีวิว
+        </a>
+      </Typography>
+      {isAdmin && (
+        <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
+          <a href="/admin/users" className="flex items-center hover:text-orange-500 transition-colors font-medium">
+            จัดการผู้ใช้
+          </a>
+        </Typography>
+      )}
+      <Typography as="li" variant="small" color="blue-gray" className="p-1 font-normal">
+        <form onSubmit={(e) => { 
+          e.preventDefault(); 
+          // ล้าง localStorage ก่อน logout
+          localStorage.removeItem('cart');
+          localStorage.removeItem('userAddress');
+          localStorage.removeItem('currentUser');
+          Inertia.post('/logout'); 
+        }}>
+          <Button type="submit" size="sm" className="bg-red-500 hover:bg-red-600 text-white">
             ออกจากระบบ
           </Button>
         </form>
@@ -31,35 +65,35 @@ export function LoggedInNavbar({ openNav, setOpenNav }) {
   );
 
   return (
-    <Navbar className="sticky top-0 z-10 w-full max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-4 mt-4">
+    <Navbar className="fixed top-0 z-50 w-full max-w-full rounded-none px-4 py-3 lg:px-8 lg:py-4 bg-white shadow-md border-b">
       <div className="flex items-center justify-between text-blue-gray-900">
-        <Typography as="a" href="/foods" className="mr-4 cursor-pointer py-1.5 font-medium">
-          อาหารปันสุข
+        <Typography as="a" href="/foods" className="mr-4 cursor-pointer py-1.5 font-bold text-lg hover:text-blue-500 transition-colors">
+           อาหารปันสุข
         </Typography>
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>
-          <div className="flex items-center gap-x-1">
-            <IconButton
-              variant="text"
-              className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg- lg:hidden"
-              ripple={false}
-              onClick={() => setOpenNav(!openNav)}
-            >
-              {openNav ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="h-6 w-6" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </IconButton>
-          </div>
+          <IconButton
+            variant="text"
+            className="ml-auto h-6 w-6 text-inherit hover:bg-gray-100 focus:bg-gray-100 lg:hidden"
+            ripple={false}
+            onClick={() => setOpenNav(!openNav)}
+          >
+            {openNav ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="h-6 w-6" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </IconButton>
         </div>
       </div>
       <Collapse open={openNav}>
-        {navList}
+        <div className="pt-4 pb-2">
+          {navList}
+        </div>
       </Collapse>
     </Navbar>
   );
