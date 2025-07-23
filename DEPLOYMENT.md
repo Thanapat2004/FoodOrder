@@ -2,10 +2,11 @@
 
 ## สิ่งที่เตรียมไว้แล้ว ✅
 
-- ✅ `Procfile` - สำหรับ Railway
-- ✅ `nixpacks.toml` - การตั้งค่า build
+- ✅ `Procfile` - สำหรับ Railway (ใช้ railway-start.sh)
+- ✅ `nixpacks.toml` - การตั้งค่า build สำหรับ Railway
+- ✅ `railway-start.sh` - script เริ่มต้นแอพพลิเคชั่น
 - ✅ `.env.production` - ตัวอย่าง environment variables
-- ✅ `deploy.sh` - script สำหรับ post-deployment
+- ✅ `deploy.sh` - script สำหรับ manual deployment tasks
 - ✅ Database configuration รองรับ PostgreSQL
 
 ## ขั้นตอนการ Deploy
